@@ -6,6 +6,7 @@ class MainStore {
 
     @observable authenticated = false;
     @observable code = null;
+    @observable useDefault = false;
     
     @observable tokenArray = [];
     @observable userArray = [];
@@ -20,8 +21,6 @@ class MainStore {
             }
         }).then((response) => {
             this.tokenArray = response.data;
-            //console.log(response.data);
-            this.loading = false;
 
             //If no error
             if(!response.data.error){
@@ -45,14 +44,17 @@ class MainStore {
     }
 
     getHistory(){
+        this.loading = true;
+
         axios.get('api/index.php/get-history', {
             params: {
                 token: this.tokenArray.access_token,
-                uuid: this.userArray.uuid
+                uuid: this.userArray.uuid,
+                default: this.useDefault
             }
         }).then((response) => {
             this.historyArray = response.data;
-            console.log(this.historyArray);
+            this.loading = false;
         });
     }
 }

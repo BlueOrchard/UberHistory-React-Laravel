@@ -16,6 +16,8 @@ class History extends Migration
         Schema::create('history', function (Blueprint $table) {
             $table->increments('id');
             $table->string('uuid');
+            $table->string('request_id');
+            $table->string('distance');
             $table->string('display_name');
             $table->string('longitude');
             $table->string('latitude');

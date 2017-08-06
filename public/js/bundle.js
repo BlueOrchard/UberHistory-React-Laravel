@@ -72,7 +72,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _class, _class2;
+var _class, _class2, _class3;
 
 var _react = require('react');
 
@@ -83,6 +83,10 @@ var _mobxReact = require('mobx-react');
 var _index = require('../store/index.js');
 
 var _index2 = _interopRequireDefault(_index);
+
+var _reactDom = require('react-dom');
+
+var _reactDom2 = _interopRequireDefault(_reactDom);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -107,7 +111,7 @@ var Content = (0, _mobxReact.observer)(_class = function (_React$Component) {
             if (_index2.default.authenticated) {
                 return _react2.default.createElement(
                     'div',
-                    null,
+                    { className: 'content' },
                     _react2.default.createElement(
                         'h1',
                         null,
@@ -117,26 +121,38 @@ var Content = (0, _mobxReact.observer)(_class = function (_React$Component) {
                     ),
                     _react2.default.createElement(
                         'p',
-                        null,
-                        'Here\'s your Uber ride history:'
+                        { className: 'borderbottom' },
+                        'Here\'s your Uber ride history (Up to 50):'
                     ),
                     _react2.default.createElement(
                         'div',
-                        null,
+                        { className: 'flex50' },
                         _react2.default.createElement(RideHistory, null),
                         _react2.default.createElement(MapView, null)
                     )
                 );
             } else {
-                return _react2.default.createElement(
-                    'div',
-                    null,
-                    _react2.default.createElement(
-                        'h1',
-                        null,
-                        'Please login to see your history.'
-                    )
-                );
+                if (_index2.default.loading) {
+                    return _react2.default.createElement(
+                        'div',
+                        { className: 'content' },
+                        _react2.default.createElement(
+                            'h1',
+                            null,
+                            'Please wait...'
+                        )
+                    );
+                } else {
+                    return _react2.default.createElement(
+                        'div',
+                        { className: 'content' },
+                        _react2.default.createElement(
+                            'h1',
+                            null,
+                            'Please login to see your history.'
+                        )
+                    );
+                }
             }
         }
     }]);
@@ -158,26 +174,21 @@ var RideHistory = (0, _mobxReact.observer)(_class2 = function (_React$Component2
     _createClass(RideHistory, [{
         key: 'getHistory',
         value: function getHistory() {
-            if (!_index2.default.historyArray.history) {
+            if (!_index2.default.historyArray.length) {
                 return _react2.default.createElement(
                     'p',
                     null,
-                    'Retrieving History... Don\'t have a riding history? Use the example data button instead!'
+                    'Don\'t have a riding history? Use the example data button to get a mock riding history!'
                 );
             } else {
-                var list = _index2.default.historyArray.history.map(function (entry, i) {
+                var list = _index2.default.historyArray.map(function (entry, i) {
                     return _react2.default.createElement(
                         'div',
-                        { key: i },
+                        { className: 'entry', key: i },
                         _react2.default.createElement(
                             'h3',
                             null,
-                            entry.start_city.display_name
-                        ),
-                        _react2.default.createElement(
-                            'p',
-                            null,
-                            entry.status
+                            entry.display_name
                         ),
                         _react2.default.createElement(
                             'p',
@@ -189,13 +200,13 @@ var RideHistory = (0, _mobxReact.observer)(_class2 = function (_React$Component2
                             'p',
                             null,
                             'Latitude: ',
-                            entry.start_city.latitude
+                            entry.latitude
                         ),
                         _react2.default.createElement(
                             'p',
                             null,
                             'Longitude: ',
-                            entry.start_city.longitude
+                            entry.longitude
                         )
                     );
                 });
@@ -203,22 +214,40 @@ var RideHistory = (0, _mobxReact.observer)(_class2 = function (_React$Component2
             }
         }
     }, {
+        key: 'refreshButton',
+        value: function refreshButton() {
+            _index2.default.useDefault = false;
+            _index2.default.getHistory();
+        }
+    }, {
+        key: 'exampleButton',
+        value: function exampleButton() {
+            _index2.default.useDefault = true;
+            _index2.default.getHistory();
+        }
+    }, {
         key: 'render',
         value: function render() {
+            var _this3 = this;
+
             return _react2.default.createElement(
                 'div',
                 null,
                 _react2.default.createElement(
                     'div',
-                    null,
+                    { className: 'buttons' },
                     _react2.default.createElement(
                         'span',
-                        null,
+                        { onClick: function onClick() {
+                                return _this3.refreshButton();
+                            } },
                         'Refresh'
                     ),
                     _react2.default.createElement(
                         'span',
-                        null,
+                        { onClick: function onClick() {
+                                return _this3.exampleButton();
+                            } },
                         'Use Example Data'
                     )
                 ),
@@ -230,7 +259,7 @@ var RideHistory = (0, _mobxReact.observer)(_class2 = function (_React$Component2
     return RideHistory;
 }(_react2.default.Component)) || _class2;
 
-var MapView = function (_React$Component3) {
+var MapView = (0, _mobxReact.observer)(_class3 = function (_React$Component3) {
     _inherits(MapView, _React$Component3);
 
     function MapView() {
@@ -240,21 +269,53 @@ var MapView = function (_React$Component3) {
     }
 
     _createClass(MapView, [{
+        key: 'getMap',
+        value: function getMap() {
+            var USA = { lat: 41.3787523, lng: -96.1985117 };
+            var map = new google.maps.Map(_reactDom2.default.findDOMNode(this.refs.map), {
+                zoom: 3,
+                center: USA
+            });
+
+            _index2.default.historyArray.map(function (entry) {
+                new google.maps.Marker({
+                    position: {
+                        lat: parseFloat(entry.latitude),
+                        lng: parseFloat(entry.longitude)
+                    },
+                    map: map
+                });
+            });
+        }
+    }, {
+        key: 'componentDidUpdate',
+        value: function componentDidUpdate() {
+            this.getMap();
+        }
+    }, {
         key: 'render',
         value: function render() {
-            return _react2.default.createElement(
-                'div',
-                null,
-                'Map View Here'
-            );
+            if (!_index2.default.historyArray.length) {
+                return _react2.default.createElement(
+                    'p',
+                    null,
+                    'Loading...'
+                );
+            } else {
+                return _react2.default.createElement(
+                    'div',
+                    { id: 'map', ref: 'map' },
+                    'Map Here.'
+                );
+            }
         }
     }]);
 
     return MapView;
-}(_react2.default.Component);
+}(_react2.default.Component)) || _class3;
 
-},{"../store/index.js":5,"mobx-react":56,"react":216}],3:[function(require,module,exports){
-'use strict';
+},{"../store/index.js":5,"mobx-react":56,"react":216,"react-dom":64}],3:[function(require,module,exports){
+"use strict";
 
 Object.defineProperty(exports, "__esModule", {
     value: true
@@ -262,7 +323,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _react = require('react');
+var _react = require("react");
 
 var _react2 = _interopRequireDefault(_react);
 
@@ -284,12 +345,12 @@ var Footer = function (_React$Component) {
     }
 
     _createClass(Footer, [{
-        key: 'render',
+        key: "render",
         value: function render() {
             return _react2.default.createElement(
-                'div',
-                null,
-                'This is merely a test application. There will be several missing features and bugs.'
+                "div",
+                { className: "footer" },
+                "This is merely a test application. There will be several missing features and bugs."
             );
         }
     }]);
@@ -353,15 +414,23 @@ var Header = (0, _mobxReact.observer)(_class = function (_React$Component) {
             var uberLink = "https://login.uber.com/oauth/v2/authorize?client_id=5WDLyRTEdGGpWtCSMRCioc7nawWC6YbO&response_type=code&redirect_uri=http://localhost/uberhist/";
 
             if (!_index2.default.authenticated) {
-                logtext = _react2.default.createElement(
-                    'a',
-                    { href: uberLink },
-                    'Login'
-                );
+                if (_index2.default.loading) {
+                    logtext = _react2.default.createElement(
+                        'span',
+                        null,
+                        'Loading...'
+                    );
+                } else {
+                    logtext = _react2.default.createElement(
+                        'a',
+                        { href: uberLink },
+                        'Login'
+                    );
+                }
             } else {
                 logtext = _react2.default.createElement(
                     'span',
-                    { onClick: function onClick() {
+                    { className: 'logout', onClick: function onClick() {
                             return _index2.default.authenticated = false;
                         } },
                     'Logout'
@@ -370,11 +439,11 @@ var Header = (0, _mobxReact.observer)(_class = function (_React$Component) {
 
             return _react2.default.createElement(
                 'div',
-                null,
+                { className: 'header' },
                 _react2.default.createElement(
                     'div',
                     { className: 'logo' },
-                    'Logo Here'
+                    'Uber History'
                 ),
                 _react2.default.createElement(
                     'div',
@@ -399,7 +468,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _desc, _value, _class, _descriptor, _descriptor2, _descriptor3, _descriptor4, _descriptor5, _descriptor6;
+var _desc, _value, _class, _descriptor, _descriptor2, _descriptor3, _descriptor4, _descriptor5, _descriptor6, _descriptor7;
 
 var _mobx = require('mobx');
 
@@ -464,11 +533,13 @@ var MainStore = (_class = function () {
 
         _initDefineProp(this, 'code', _descriptor3, this);
 
-        _initDefineProp(this, 'tokenArray', _descriptor4, this);
+        _initDefineProp(this, 'useDefault', _descriptor4, this);
 
-        _initDefineProp(this, 'userArray', _descriptor5, this);
+        _initDefineProp(this, 'tokenArray', _descriptor5, this);
 
-        _initDefineProp(this, 'historyArray', _descriptor6, this);
+        _initDefineProp(this, 'userArray', _descriptor6, this);
+
+        _initDefineProp(this, 'historyArray', _descriptor7, this);
     }
 
     _createClass(MainStore, [{
@@ -484,8 +555,6 @@ var MainStore = (_class = function () {
                 }
             }).then(function (response) {
                 _this.tokenArray = response.data;
-                //console.log(response.data);
-                _this.loading = false;
 
                 //If no error
                 if (!response.data.error) {
@@ -512,14 +581,17 @@ var MainStore = (_class = function () {
         value: function getHistory() {
             var _this2 = this;
 
+            this.loading = true;
+
             _axios2.default.get('api/index.php/get-history', {
                 params: {
                     token: this.tokenArray.access_token,
-                    uuid: this.userArray.uuid
+                    uuid: this.userArray.uuid,
+                    default: this.useDefault
                 }
             }).then(function (response) {
                 _this2.historyArray = response.data;
-                console.log(_this2.historyArray);
+                _this2.loading = false;
             });
         }
     }]);
@@ -540,17 +612,22 @@ var MainStore = (_class = function () {
     initializer: function initializer() {
         return null;
     }
-}), _descriptor4 = _applyDecoratedDescriptor(_class.prototype, 'tokenArray', [_mobx.observable], {
+}), _descriptor4 = _applyDecoratedDescriptor(_class.prototype, 'useDefault', [_mobx.observable], {
+    enumerable: true,
+    initializer: function initializer() {
+        return false;
+    }
+}), _descriptor5 = _applyDecoratedDescriptor(_class.prototype, 'tokenArray', [_mobx.observable], {
     enumerable: true,
     initializer: function initializer() {
         return [];
     }
-}), _descriptor5 = _applyDecoratedDescriptor(_class.prototype, 'userArray', [_mobx.observable], {
+}), _descriptor6 = _applyDecoratedDescriptor(_class.prototype, 'userArray', [_mobx.observable], {
     enumerable: true,
     initializer: function initializer() {
         return [];
     }
-}), _descriptor6 = _applyDecoratedDescriptor(_class.prototype, 'historyArray', [_mobx.observable], {
+}), _descriptor7 = _applyDecoratedDescriptor(_class.prototype, 'historyArray', [_mobx.observable], {
     enumerable: true,
     initializer: function initializer() {
         return [];

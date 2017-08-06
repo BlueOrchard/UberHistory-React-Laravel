@@ -562,11 +562,65 @@ button, .submit {
   padding: 5px 10px; }
 
 /* Content area CSS (Post and Page). Includes Sidebar and Homepage/Archive/Search/Comment CSS as well. */
-.content-area {
-  padding: 10px; }
+.header {
+  padding: 10px;
+  -webkit-box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.24);
+          box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.24);
+  background: #FFF;
+  overflow: auto; }
+  .header .logo {
+    float: left;
+    font-size: 16px; }
+  .header .user {
+    float: right;
+    font-size: 16px; }
+  .header .logout {
+    color: #4554ca;
+    cursor: pointer; }
 
-.widget-area {
-  padding: 10px; }
+.content {
+  padding: 10px;
+  min-height: calc(100vh - 150px); }
+  .content h1 {
+    font-weight: 300;
+    margin-bottom: 0; }
+  .content .borderbottom {
+    border-bottom: 1px solid #DDD;
+    padding-bottom: 5px; }
+  .content .buttons {
+    overflow: auto; }
+    .content .buttons span {
+      background: #6b8ed0;
+      display: inline-block;
+      padding: 5px 10px;
+      margin: 0 5px 0 0;
+      color: #FFF;
+      border-radius: 3px;
+      cursor: pointer; }
+  .content .entry {
+    padding: 10px;
+    margin: 10px 0;
+    -webkit-box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.24);
+            box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.24);
+    border-radius: 3px; }
+    .content .entry h3 {
+      margin: 0; }
+    .content .entry p {
+      margin: 0; }
+  .content .flex50 {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex; }
+    .content .flex50 > div {
+      width: 50%;
+      padding: 0 10px 0 0; }
+    .content .flex50 #map {
+      max-height: 500px; }
+
+.footer {
+  text-align: center;
+  padding: 10px;
+  border-top: 1px solid #DDD; }
 
 /* Footer CSS */
 .site-footer {
